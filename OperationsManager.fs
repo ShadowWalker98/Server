@@ -1,27 +1,22 @@
 module Server.OperationsManager
 open System
+open System.Text.RegularExpressions
 open Microsoft.FSharp.Collections
 
 let operationSet = Set.empty.Add("mul").Add("add").Add("sub")
 
+(* first check input validity if valid we parse the input
+ we send the answer back to the client if its not valid we
+ send an error code *)
 
-
-// first check input validity
-// if valid we parse the input
-// we send the answer back to the client
-// if its not valid we send an error code
-
-let rec errorScenario (commandArgs : string[]) : string[] =
-    let mutable newArgs : string array = Array.zeroCreate 3
-    for i in 0 .. 2 do
-        if i = 2 then
-            if commandArgs[i].Length < 3 then
-                newArgs[i] <- commandArgs[i].Substring(0, commandArgs[2].Length - 1)
-            else
-                newArgs[i] <- commandArgs[i]
-        else
-            newArgs[i] <- commandArgs[i]
+let rec removeNonPrintableASCIIChars (commandArgs : string[]) : string[] =
+    let mutable newArgs = Array.zeroCreate commandArgs.Length
+    let pattern = "[^ -~]+"
+    let regex = new Regex(pattern)
+    for i in 0..commandArgs.Length - 1 do
+        newArgs[i] <- regex.Replace(commandArgs[i], "")
     newArgs
+    
 let fetchArgs (command : string) : string[] =
     let separators = [|' '|]
     let commandArgs = command.Trim().Split (separators, StringSplitOptions.RemoveEmptyEntries)
@@ -60,16 +55,16 @@ let operationsManager (input : string) : int =
         let mutable result = -1
         let mutable commandArgs = fetchArgs input
         if commandArgs[0].Equals("add") then
-            if commandArgs.Length = 3 then
-                // its because of the bell character apparently?
-                // its represented by char(7)
-                commandArgs <- errorScenario commandArgs
-                result <- addNumbers commandArgs[1..]
-            else
-                result <- addNumbers commandArgs[1..] 
+            // Nonprintable ASCII characters were appearing
+            // in the input received from client, hence we
+            // are replacing those with ""
+            commandArgs <- removeNonPrintableASCIIChars commandArgs
+            result <- addNumbers commandArgs[1..]
         elif commandArgs[0].Equals("sub") then
+            commandArgs <- removeNonPrintableASCIIChars commandArgs
             result <- subtractNumbers commandArgs[1..]
         elif commandArgs[0].Equals("mul") then
+            commandArgs <- removeNonPrintableASCIIChars commandArgs
             result <- multiplyNumbers commandArgs[1..]
         result
     else
