@@ -21,13 +21,12 @@ let socketSetup : Socket =
 let sendMessage (socket : Socket) (message : string) : unit =
     let messageByteArray = System.Text.Encoding.ASCII.GetBytes(message)
     let bytesSent = socket.Send(messageByteArray)
-    printfn $"Number of bytes sent: %d{bytesSent}"
+    ()
     
 let receiveMessage (socket :Socket) : string =
-     let bytesResponse = [|for i in 0..256 -> byte(i)|] 
+     let bytesResponse = [|for i in 0..256 -> byte(i)|]
      let response = socket.Receive(bytesResponse)
      let message = System.Text.Encoding.ASCII.GetString bytesResponse[0 .. response]
-     printfn $"message: %s{message}"
      message
     
 let acceptConnections (serverSocket : Socket) : Socket =
@@ -46,7 +45,7 @@ let socketHandler =
         
         let command = receiveMessage connectedSocket
         printfn $"Message from client: %s{command}"
-        let result = operationsManager command
+        let result = operationsManager command 
         printfn $"Result of operation is: %d{result}"
         let resultString = result.ToString()
         sendMessage connectedSocket resultString
