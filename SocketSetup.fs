@@ -49,6 +49,10 @@ let socketHandler =
         printfn $"Result of operation is: %d{result}"
         let resultString = result.ToString()
         sendMessage connectedSocket resultString
+        if resultString.Equals("-5") then
+            connectedSocket.Shutdown(SocketShutdown.Both)
+            connectedSocket.Close()
+            keepOpen <- false
         printfn $"End of loop"
     
     
