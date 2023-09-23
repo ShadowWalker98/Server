@@ -20,7 +20,7 @@ let socketSetup : Socket =
 
 let sendMessage (socket : Socket) (message : string) : unit =
     let messageByteArray = System.Text.Encoding.ASCII.GetBytes(message)
-    let bytesSent = socket.Send(messageByteArray)
+    socket.Send(messageByteArray) |> ignore
     ()
     
 let receiveMessage (socket :Socket) : string =
