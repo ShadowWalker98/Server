@@ -1,9 +1,16 @@
-﻿open Server
+﻿open System
+open Server
 open SocketSetup
+
 
 [<EntryPoint>]
 let main args =
-    socketHandler
+    
+    let serverSocket = socketSetup
+    Async.Start(socketHandler serverSocket)
+    
+    Console.ReadLine() |> ignore
+    
     0
     
     
