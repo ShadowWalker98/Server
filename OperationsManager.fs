@@ -59,6 +59,8 @@ let inputValidator (input : string) : bool =
     if operationSet.Contains(commandArgs[0].ToLower()) then
         if commandArgs[0].Equals(EXIT_COMMAND) then
             commandArgs.Length = 1
+        elif commandArgs[0].Equals(TERMINATE) then
+            commandArgs.Length = 1
         else
             
         // check if the number of arguments after the operation is <= 4
